@@ -46,9 +46,14 @@ EOF
 }
 
 # Attach IAM Role and the new created Policy
-resource "aws_iam_role_policy_attachment" "test-attach" {
+resource "aws_iam_role_policy_attachment" "AdjustSGPolicy" {
   role       = aws_iam_role.adjust_sg_role.name
   policy_arn = aws_iam_policy.adjust_sg_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "CloudWatchLogs" {
+  role       = aws_iam_role.adjust_sg_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
 # Create Lambda function to isolate an EC2 instance
@@ -56,7 +61,7 @@ resource "aws_lambda_function" "IsolateInstance" {
   filename      = "isolateinstance.zip"
   function_name = "IsolateInstance"
   role          = aws_iam_role.adjust_sg_role.arn
-  handler       = "index.test"
+  handler       = "lambda_function.lambda_handler"
 
   source_code_hash = filebase64sha256("isolateinstance.zip")
 
